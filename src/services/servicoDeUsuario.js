@@ -1,6 +1,7 @@
 const RepositorioDeUsuario = require("../repositories/repositorioDeUsuario");
 const { Usuario } = require("../models/Usuario");
 const { HttpError } = require("../errors/HttpError");
+const jwt = require("jsonwebtoken");
 
 class ServicoDeUsuario {
   async listarTodos() {
@@ -14,7 +15,7 @@ class ServicoDeUsuario {
     return usuario;
   }
 
-  async cadastrar({ nome, email, cpf, senha }, headers) {
+  async cadastrar({ nome, email, cpf, role, senha }, headers) {
     const senhaHash = await Usuario.criptografar(senha);
 
     const emailJaCadastrado = await RepositorioDeUsuario.buscarPeloEmail(email);
@@ -25,19 +26,29 @@ class ServicoDeUsuario {
 
     if (role === "professor") {
       const authorization = headers["authorization"];
+
       if (!authorization) throw new HttpError(401, "Token não enviado.");
 
-      const token = authorization.replace("Bearer ", "");
+      const token = authorization.replace("Bearer ", "").trim();
 
       let payload;
       try {
-        payload = jwt.verify(token, process.env.JWT_SECRET);
+        payload = jwt.verify(token, "senhaSecreta");
       } catch (err) {
+        console.error("Erro ao verificar o token:", err);
         throw new HttpError(401, "Token inválido.");
       }
 
       if (payload.role !== "admin") {
         throw new HttpError(403, "Somente admin pode criar professores.");
+      }
+
+      const admin = await RepositorioDeUsuario.buscarPeloId(1);
+      if (!admin) throw new HttpError(404, "Admin não encontrado.");
+
+      if (admin.token.trim() !== token) {
+        console.error("Token no banco e token enviado são diferentes!");
+        throw new HttpError(403, "Token inválido para o admin.");
       }
     }
 
@@ -46,7 +57,7 @@ class ServicoDeUsuario {
       email,
       cpf,
       senha: senhaHash,
-      role: "aluno"
+      role
     });
   }
 
