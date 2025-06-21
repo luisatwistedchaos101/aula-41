@@ -56,7 +56,7 @@ npx prisma migrate dev
 
 ## ✅ Coleção no Postman
 
-[👉 Link para a coleção](https://www.postman.com/cryosat-explorer-1990878/workspace/prismatech/collection/38333534-130441d0-fc6c-4e1c-a4d0-c3a347e82a61?action=share&creator=38333534)
+[👉 Link para a coleção](https://.postman.co/workspace/API-Gerenciador-de-turmas~34a4c97e-38d9-4e31-bcb8-f01648857cc0/collection/38333534-130441d0-fc6c-4e1c-a4d0-c3a347e82a61?action=share&creator=38333534)
 
 ---
 
