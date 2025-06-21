@@ -24,6 +24,8 @@ class ServicoDeUsuario {
     const cpfJaCadastrado = await RepositorioDeUsuario.buscarPeloCpf(cpf);
     if (cpfJaCadastrado) throw new HttpError(409, "Usuário ja cadastrado.");
 
+    if (role === "admin") throw new HttpError(403, "Método nao permitido.");
+
     if (role === "professor") {
       const authorization = headers["authorization"];
 
