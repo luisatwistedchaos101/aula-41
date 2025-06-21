@@ -24,7 +24,7 @@ model Usuario {
   createdAt       DateTime       @default(now())
   materias        Materia[]      @relation("MateriasDoProfessor")
   turmasProfessor Turma[]        @relation("ProfessorDaTurma")
-  turmas          AlunoNaTurma[]
+  turmas          AlunoNaTurma[] 
 }
 
 model Materia {

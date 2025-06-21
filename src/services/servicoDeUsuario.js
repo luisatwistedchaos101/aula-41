@@ -19,10 +19,10 @@ class ServicoDeUsuario {
     const senhaHash = await Usuario.criptografar(senha);
 
     const emailJaCadastrado = await RepositorioDeUsuario.buscarPeloEmail(email);
-    if (emailJaCadastrado) throw new HttpError(409, "Usuário ja cadastrado.");
+    if (emailJaCadastrado) throw new HttpError(409, "Usuário ja cadastrado com esse e-mail.");
 
     const cpfJaCadastrado = await RepositorioDeUsuario.buscarPeloCpf(cpf);
-    if (cpfJaCadastrado) throw new HttpError(409, "Usuário ja cadastrado.");
+    if (cpfJaCadastrado) throw new HttpError(409, "Usuário ja cadastrado com esse cpf.");
 
     if (role === "admin") throw new HttpError(403, "Método nao permitido.");
 

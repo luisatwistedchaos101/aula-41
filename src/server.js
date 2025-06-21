@@ -2,9 +2,11 @@ const express = require("express");
 const rotas = require("./routes");
 const tratadorDeErros = require("./middleware/tratadorDeErros");
 const server = express();
+const cors = require("cors");
 
 server.use(express.json());
 
+server.use(cors());
 server.use(rotas);
 
 server.use((_req, res, _next) =>
