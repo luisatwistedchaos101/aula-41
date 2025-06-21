@@ -7,13 +7,19 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Role {
+  aluno
+  professor
+  admin
+}
+
 model Usuario {
   id              Int            @id @default(autoincrement())
   nome            String
   email           String         @unique
   cpf             String         @unique
   senha           String
-  role            String         @default("aluno")
+  role            Role           @default(aluno)
   token           String?        @default("")
   createdAt       DateTime       @default(now())
   materias        Materia[]      @relation("MateriasDoProfessor")

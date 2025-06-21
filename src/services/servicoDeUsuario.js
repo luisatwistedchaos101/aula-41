@@ -14,7 +14,7 @@ class ServicoDeUsuario {
     return usuario;
   }
 
-  async cadastrar({ nome, email, cpf, senha }) {
+  async cadastrar({ nome, email, cpf, senha }, headers) {
     const senhaHash = await Usuario.criptografar(senha);
 
     const emailJaCadastrado = await RepositorioDeUsuario.buscarPeloEmail(email);
@@ -23,12 +23,30 @@ class ServicoDeUsuario {
     const cpfJaCadastrado = await RepositorioDeUsuario.buscarPeloCpf(cpf);
     if (cpfJaCadastrado) throw new HttpError(409, "Usuário ja cadastrado.");
 
+    if (role === "professor") {
+      const authorization = headers["authorization"];
+      if (!authorization) throw new HttpError(401, "Token não enviado.");
+
+      const token = authorization.replace("Bearer ", "");
+
+      let payload;
+      try {
+        payload = jwt.verify(token, process.env.JWT_SECRET);
+      } catch (err) {
+        throw new HttpError(401, "Token inválido.");
+      }
+
+      if (payload.role !== "admin") {
+        throw new HttpError(403, "Somente admin pode criar professores.");
+      }
+    }
+
     return await RepositorioDeUsuario.criar({
       nome,
       email,
       cpf,
       senha: senhaHash,
-      role: "aluno",
+      role: "aluno"
     });
   }
 
@@ -45,7 +63,7 @@ class ServicoDeUsuario {
 
     const token = Usuario.gerarToken(usuarioEncontrado);
     await RepositorioDeUsuario.atualizarPeloId(usuarioEncontrado.id, { token });
-    
+
     return token;
   }
 
@@ -59,14 +77,17 @@ class ServicoDeUsuario {
       nome: nome ?? usuarioExistente.nome,
       email: email ?? usuarioExistente.email,
       cpf: cpf ?? usuarioExistente.cpf,
-      role: role ?? usuarioExistente.role,
+      role: role ?? usuarioExistente.role
     };
 
     if (senha) {
       dadosAtualizados.senha = await Usuario.criptografar(senha);
     }
 
-    return await RepositorioDeUsuario.atualizarPeloId(usuarioId, dadosAtualizados);
+    return await RepositorioDeUsuario.atualizarPeloId(
+      usuarioId,
+      dadosAtualizados
+    );
   }
 
   async remover(id) {
